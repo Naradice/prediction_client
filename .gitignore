@@ -1,0 +1,4 @@
+venv*
+notebooks
+__pycache__
+.vscode
