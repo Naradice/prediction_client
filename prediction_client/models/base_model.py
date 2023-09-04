@@ -19,7 +19,7 @@ class ModelWrapper:
         np_values = tensor.cpu().detach().numpy()
         return pd.DataFrame(np_values, index=index, columns=columns)
 
-    def revert_predictions(self, observations: pd.DataFrame, predictions: pd.DataFrame, std_processes: list):
+    def revert_predictions(self, org_observations: pd.DataFrame, predictions: pd.DataFrame, std_processes: list):
         # most process doesn't work as arguments are required.
         for p_index in range(len(std_processes)):
             r_index = len(std_processes) - 1 - p_index
@@ -45,7 +45,7 @@ class ModelWrapper:
                                     required_length.append(base_process.get_minimum_required_length())
                             if len(base_processes) > 0:
                                 raise Exception("Not implemented yet")
-                        base_values = observations[close_column].iloc[-1:]
+                        base_values = org_observations[close_column].iloc[-1:]
                         predictions = process.revert(predictions, base_value=base_values)
                     elif process.kinds == fprocess.DiffPreProcess.kinds:
                         target_columns = process.columns
@@ -59,14 +59,14 @@ class ModelWrapper:
                                     required_length.append(base_process.get_minimum_required_length())
                             if len(base_processes) > 0:
                                 required_length = max(required_length)
-                                target_data = observations[target_columns].iloc[-required_length:]
+                                target_data = org_observations[target_columns].iloc[-required_length:]
                                 for base_process in base_processes:
                                     target_data = base_process(target_data)
                                 base_values = target_data.iloc[-1:]
                             else:
-                                base_values = observations[target_columns].iloc[-1:]
+                                base_values = org_observations[target_columns].iloc[-1:]
                         else:
-                            base_values = observations[target_columns].iloc[-1:]
+                            base_values = org_observations[target_columns].iloc[-1:]
                         predictions = process.revert(predictions, base_values=base_values)
                     else:
                         raise Exception(f"Not implemented: {process.kinds}")

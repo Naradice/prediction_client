@@ -39,7 +39,7 @@ class TestPrediction(unittest.TestCase):
 
         model = pc.models.Transformer(torch_model, observation_length, prediction_length)
 
-    def test_prediction_with_observation(self):
+    def common_prediction(self, idc_process=None):
         torch_model = self.create_basic_transformer(
             feature_size=4, time_size=24 * 7 * 2, nhead=1, dim_feedforward=10, num_encoder_layers=2, num_decoder_layers=2, device="cuda"
         )
@@ -57,7 +57,16 @@ class TestPrediction(unittest.TestCase):
         ]
         client = fc.CSVClient("L:\\data\\fx\\HistData_USDJPY_30min.csv", columns=["open", "high", "low", "close"])
         p_client = pc.Client(client, model, std_processes=std_processes)
-        obs, pre = p_client.get_ohlc()
+        obs, pre = p_client.get_ohlc(idc_process=idc_process)
+        return obs, pre
+
+    def test_prediction_with_observation(self):
+        obs, pre = self.common_prediction()
+        print(pre)
+
+    def test_prediction_with_indicators(self):
+        idc_process = [fc.fprocess.MACDProcess(target_column="close")]
+        obs, pre = self.common_prediction(idc_process=idc_process)
         print(pre)
 
 

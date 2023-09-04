@@ -14,9 +14,10 @@ class Transformer(ModelWrapper):
         return [fc.fprocess.TimeProcess]
 
     def get_arguments(self, observations, std_processes):
+        kwargs = {}
         for process in std_processes:
+            observations = process.run(observations)
             if isinstance(process, fc.fprocess.TimeProcess):
-                new_observations = process.run(observations)
                 freq = process.freq
                 delta = pd.Timedelta(minutes=freq)
                 time_column = process.time_column
@@ -30,8 +31,7 @@ class Transformer(ModelWrapper):
                 pre_df = process.run(pre_df)
                 kwargs = {"tgt_time_srs": pre_df[time_column]}
                 self.positional_index = time_column
-                return new_observations, kwargs
-        return observations, {}
+        return observations, kwargs
 
     def predict(self, observations: pd.DataFrame, tgt_time_srs: pd.Series):
         """_summary_
