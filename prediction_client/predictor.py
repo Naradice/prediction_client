@@ -38,14 +38,7 @@ class Client:
                 required_length.append(process.get_minimum_required_length())
         required_length = max(required_length)
 
-        ohlc_df = self.finance_client._get_ohlc_from_client(
-            length=self.model.observation_length + required_length,
-            symbols=self.finance_client.symbols,
-            frame=self.finance_client.frame,
-            columns=self.finance_client.out_ohlc_columns,
-            index=None,  # use latest index only
-            grouped_by_symbol=grouped_by_symbol,
-        )
+        ohlc_df = self.finance_client.get_ohlc(length=self.model.observation_length + required_length)
         kwargs = {}
         observations, args = self.model.get_arguments(ohlc_df, self.std_processes)
         observations = observations.iloc[-self.model.observation_length :]
