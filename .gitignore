@@ -2,3 +2,4 @@ venv*
 notebooks
 __pycache__
 .vscode
+*egg-info
